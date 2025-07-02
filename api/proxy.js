@@ -14,11 +14,14 @@ export default async function handler(req, res) {
 
   try {
     if (provider === 'openai') {
+      // Get the authorization header properly
+      const authHeader = req.headers.authorization || req.headers.Authorization;
+      
       const response = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': req.headers.authorization,
+          'Authorization': authHeader,
         },
         body: JSON.stringify(req.body),
       });
@@ -32,12 +35,16 @@ export default async function handler(req, res) {
       return res.status(200).json(data);
       
     } else if (provider === 'anthropic') {
+      // Get the x-api-key header properly
+      const apiKey = req.headers['x-api-key'] || req.headers['X-API-Key'];
+      const version = req.headers['anthropic-version'] || '2023-06-01';
+      
       const response = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-api-key': req.headers['x-api-key'],
-          'anthropic-version': req.headers['anthropic-version'] || '2023-06-01',
+          'x-api-key': apiKey,
+          'anthropic-version': version,
         },
         body: JSON.stringify(req.body),
       });
